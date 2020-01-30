@@ -6,7 +6,7 @@ function App() {
     return (
        <div className="App">
         <header className="App-header">
-            <ImageSearch title={'NASA Image Library'}/>
+            <ImageSearch/>
         </header>
     </div>
     );

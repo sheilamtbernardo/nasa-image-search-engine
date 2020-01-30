@@ -2,11 +2,8 @@ import React from 'react';
 import {withStyles} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import FieldSearch from "../components/FieldSearch";
-import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
-import {Redirect, withRouter} from "react-router-dom";
-import {inject, observer} from "mobx-react";
-
+import {withRouter} from "react-router-dom";
 
 const useStyles = theme => ({
     root: {
@@ -14,14 +11,11 @@ const useStyles = theme => ({
     }
 });
 
-@inject("imageStore")
-@observer
 class ImageSearch extends React.Component  {
     constructor(props) {
         super(props);
         this.state = {
-            isLoading: false,
-            filter: ''
+            isLoading: false
         };
     }
 
@@ -30,14 +24,8 @@ class ImageSearch extends React.Component  {
     };
 
     handleSearch = () => {
-        this.props.imageStore.filter = this.state.filter;
-        return (<Redirect to='/search-results' />)
+        this.props.history.push({ pathname: "/search-results", search: "?page=1&&q=" + this.state.filter });
     };
-
-    onClickAlert = (isOpen) => {
-        this.setState({errorOpen: isOpen});
-    };
-
 
     render() {
         const {classes} = this.props;
@@ -47,7 +35,7 @@ class ImageSearch extends React.Component  {
                 <Grid container justify="space-around" spacing={3}>
                     <Grid item xs={12}>
                         <Typography variant="h3" gutterBottom>
-                            {this.props.title}
+                            NASA Image Library
                         </Typography>
                     </Grid>
                     <Grid item xs={12}>
@@ -58,9 +46,5 @@ class ImageSearch extends React.Component  {
         );
     }
 }
-
-ImageSearch.propTypes = {
-    title: PropTypes.string.isRequired
-};
 
 export default withRouter(withStyles(useStyles)(ImageSearch));

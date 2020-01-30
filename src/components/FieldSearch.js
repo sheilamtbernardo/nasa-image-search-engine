@@ -36,6 +36,7 @@ class FieldSearch extends React.Component {
     handleSubmit = e => {
         e.preventDefault();
         this.props.onSearchChange(this.state.searchValue);
+        this.setState({searchValue: ''});
     };
 
     render() {

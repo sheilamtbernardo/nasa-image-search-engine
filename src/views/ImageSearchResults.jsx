@@ -12,11 +12,12 @@ import ImageGrid from "../components/ImageGrid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
-
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import Toolbar from "@material-ui/core/Toolbar";
 import AppBar from "@material-ui/core/AppBar";
 import {ScrollTop} from "../components/ScrollTop";
+import queryString from 'query-string';
+import {withRouter} from "react-router-dom";
 
 
 const useStyles = theme => ({
@@ -50,33 +51,53 @@ class ImageSearchResults extends React.Component {
         this.state = {
             errorOpen: false,
             isLoading: false,
-            filter: ''
         };
     }
 
+    componentDidUpdate(){
+        window.onpopstate  = () => {
+            const values = queryString.parse(this.props.location.search);
+            this.props.imageStore.filter = values.q;
+            this.props.imageStore.page = parseInt(values.page);
+            this.setState({isLoading: true}, this.handleSearch);
+        }
+
+    }
+
     componentDidMount() {
+        const values = queryString.parse(this.props.location.search);
+        this.props.imageStore.filter = values.q;
+        this.props.imageStore.page = parseInt(values.page);
         this.setState({isLoading: true}, this.handleSearch);
     }
 
     handleFilter = (searchValue) => {
         this.props.imageStore.reset();
         this.props.imageStore.filter = searchValue;
+        this.updateUrlParams();
         this.setState({isLoading: true}, this.handleSearch);
     };
 
     handleSearch = async () => {
+
         await this.props.imageStore.getImages();
         this.setState({isLoading: false});
     };
 
     handleNext = async () => {
         this.props.imageStore.nextPage();
+        this.updateUrlParams();
         this.setState({isLoading: true}, this.handleSearch);
     };
 
     handlePrev = async () => {
         this.props.imageStore.prevPage();
+        this.updateUrlParams();
         this.setState({isLoading: true}, this.handleSearch);
+    };
+
+    updateUrlParams = () => {
+        this.props.history.push({ pathname: "/search-results", search: "?page=" + this.props.imageStore.page + "&&q=" + this.props.imageStore.filter });
     };
 
     onClickAlert = (isOpen) => {
@@ -105,10 +126,9 @@ class ImageSearchResults extends React.Component {
                             <CircularProgress color="inherit"/>
                         </Backdrop>
                     </Grid>
-                    {!isLoading && imageStore.imagesLength > 0 && <Grid item xs={12}>
+                    {!isLoading && <Grid item xs={12}>
                         <Typography
-                            color={"textSecondary"}>{imageStore.startDisplayCount}-{imageStore.endDisplayCount} of {imageStore.totalHits} for
-                            "{imageStore.filter}"</Typography>
+                            color={"textSecondary"}>{imageStore.startDisplayCount}-{imageStore.endDisplayCount} of {imageStore.totalHits} for "{imageStore.filter}"</Typography>
                     </Grid>}
                     {imageStore.imagesLength > 0 && <Grid item xs={12}>
                         <Grid container justify="space-around" spacing={3}>
@@ -167,4 +187,4 @@ class ImageSearchResults extends React.Component {
     }
 }
 
-export default withStyles(useStyles)(ImageSearchResults);
+export default withRouter(withStyles(useStyles)(ImageSearchResults));

@@ -36,11 +36,11 @@ export default class ImageStore {
     @observable rowsPerPage = 100;
 
     @computed get startDisplayCount() {
-        return this.page * this.rowsPerPage + 1 - this.rowsPerPage;
+        return this.totalHits > 0 ? this.page * this.rowsPerPage + 1 - this.rowsPerPage : 0;
     }
 
     @computed get endDisplayCount() {
-        return this.totalHits < this.rowsPerPage ? this.totalHits : this.page * this.rowsPerPage;
+        return this.totalHits < this.page * this.rowsPerPage ? this.totalHits : this.page * this.rowsPerPage;
     }
 
     @computed get imagesLength() {
@@ -48,17 +48,16 @@ export default class ImageStore {
     }
 
     @action nextPage() {
-        this.images = [];
         this.page = this.page + 1;
     }
 
     @action prevPage() {
-        this.images = [];
         this.page = this.page - 1;
     }
 
     @action
     async getImages() {
+        this.images = [];
         if (this.filter) {
             await searchImages(this.filter, this.page).then(
                 response => {
